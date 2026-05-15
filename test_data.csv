@@ -1,0 +1,7 @@
+name,size,extension,owner,created_at,email,phone
+report_Q1.pdf,2048576,.pdf,Alice,2024-01-15,alice@example.com,555-123-4567
+budget_draft.xlsx,512000,.xlsx,Bob,2024-02-01,,
+client_list.csv,10240,.csv,Charlie,2024-03-10,charlie@client.com,
+huge_archive.zip,5368709120,.zip,Dave,2024-03-15,,
+notes.txt,1024,.txt,Alice,2024-03-16,,
+suspicious.exe,1048576,.exe,Eve,2024-03-17,,

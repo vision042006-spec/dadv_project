@@ -1,0 +1,37 @@
+# Secrets & local config
+*.env
+.env
+.env.*
+test_credentials.env
+tradeoff.txt
+api keys
+
+# Data & uploads
+data/
+*.db
+*.log
+
+# Go build artifacts
+api
+*.exe
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
