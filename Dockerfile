@@ -7,7 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o /app/api ./cmd/api/main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o /app/api ./cmd/api
 
 # ── Runtime stage ─────────────────────────────────────────────
 FROM python:3.11-slim
@@ -26,7 +26,7 @@ WORKDIR /app
 COPY --from=go-builder /app/api /app/api
 
 # Setup Python worker
-COPY cmd/worker/requirements.txt /app/worker/
+COPY cmd/worker/requirements.txt /app/worker/requirements.txt
 RUN pip install --no-cache-dir -r /app/worker/requirements.txt
 COPY cmd/worker/worker.py /app/worker/
 

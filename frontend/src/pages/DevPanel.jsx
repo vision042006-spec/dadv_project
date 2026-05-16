@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Shield, Users, Clock, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
+
 export default function DevPanel() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +15,7 @@ export default function DevPanel() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/auth/admin/users', {
+        const res = await fetch(`${API_BASE}/auth/admin/users`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
