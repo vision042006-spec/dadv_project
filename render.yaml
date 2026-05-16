@@ -3,7 +3,7 @@ services:
   - type: web
     name: dadv-monolith
     runtime: docker
-    dockerfilePath: ./docker/Dockerfile.monolith
+    dockerfilePath: ./Dockerfile
     plan: free
     envVars:
       - key: JWT_SECRET
