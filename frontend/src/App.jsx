@@ -6,6 +6,7 @@ import { uploadFile, getJobStatus, getAggregateStats, getFileTypeStats, getSizeD
 import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import DevPanel from './pages/DevPanel';
 
 import { Sidebar } from './components/Sidebar';
 import { StatsGrid } from './components/StatsGrid';
@@ -31,6 +32,11 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/dev-panel" element={
+        <ProtectedRoute>
+          <DevPanel />
+        </ProtectedRoute>
+      } />
       <Route path="/*" element={
         <ProtectedRoute>
           <Dashboard />
@@ -97,7 +103,7 @@ function Dashboard() {
         </div>
       </header>
 
-      <div className="flex max-w-[1600px] mx-auto">
+      <div className="flex flex-col md:flex-row max-w-[1600px] mx-auto">
         <Sidebar 
           jobs={jobs} 
           currentJob={currentJob} 

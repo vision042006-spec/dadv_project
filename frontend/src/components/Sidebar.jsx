@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { Upload, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Upload, FileSpreadsheet, Loader2, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function Sidebar({ jobs, currentJob, onSelectJob, onUpload, loading }) {
   const handleDrop = (e) => {
@@ -9,7 +10,7 @@ export function Sidebar({ jobs, currentJob, onSelectJob, onUpload, loading }) {
   };
 
   return (
-    <aside className="w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 p-6 min-h-[calc(100vh-73px)] shadow-sm">
+    <aside className="w-full md:w-72 bg-white/80 backdrop-blur-xl border-b md:border-r border-gray-200/50 p-6 shadow-sm">
       <div className="mb-8">
         <h2 className="text-sm font-semibold text-gray-800 mb-4 tracking-wide uppercase">Upload Dataset</h2>
         <motion.div
@@ -77,6 +78,21 @@ export function Sidebar({ jobs, currentJob, onSelectJob, onUpload, loading }) {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="mt-auto pt-6 border-t border-gray-100">
+        <Link
+          to="/dev-panel"
+          className="w-full text-left px-4 py-3 rounded-xl text-sm transition-all flex items-center gap-3 bg-white text-gray-600 border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/50"
+        >
+          <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-gray-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium">Dev Panel</p>
+            <p className="text-xs text-gray-400">System metrics</p>
+          </div>
+        </Link>
       </div>
     </aside>
   );

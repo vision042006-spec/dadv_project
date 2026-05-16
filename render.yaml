@@ -1,46 +1,14 @@
 services:
-  # Go REST API
+  # Monolithic setup (Go API + Python Worker + Redis)
   - type: web
-    name: dadv-api
+    name: dadv-monolith
     runtime: docker
-    dockerfilePath: ./docker/Dockerfile.api
+    dockerfilePath: ./docker/Dockerfile.monolith
     plan: free
     envVars:
-      - key: GIN_MODE
-        value: release
-      - key: DATABASE_DSN
-        value: /app/data/dadv.db
       - key: JWT_SECRET
         generateValue: true
-      - key: REDIS_ADDR
-        sync: false   # Set manually from Upstash
-      - key: REDIS_PASSWORD
-        sync: false   # Set manually from Upstash
       - key: CORS_ALLOWED_ORIGINS
         sync: false   # Set to your Netlify URL after deploy
-    disk:
-      name: dadv-data
-      mountPath: /app/data
-      sizeGB: 1
-
-  # Python worker
-  - type: worker
-    name: dadv-worker
-    runtime: docker
-    dockerfilePath: ./docker/Dockerfile.worker
-    plan: free
-    envVars:
-      - key: DATABASE_PATH
-        value: /app/data/dadv.db
-      - key: QUEUE_NAME
-        value: metadata_jobs
-      - key: UPLOAD_DIR
-        value: /app/data/uploads
-      - key: REDIS_ADDR
-        sync: false
-      - key: REDIS_PASSWORD
-        sync: false
-    disk:
-      name: dadv-data
-      mountPath: /app/data
-      sizeGB: 1
+      - key: API_PORT
+        value: "10000"

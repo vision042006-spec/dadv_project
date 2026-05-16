@@ -34,6 +34,7 @@ func (h *AuthHandler) RegisterRoutes(r *gin.Engine) {
 		auth.GET("/me", h.GetMe)
 		auth.POST("/forgot-password", h.ForgotPassword)
 		auth.POST("/reset-password", h.ResetPassword)
+		auth.GET("/admin/users", h.GetAdminUsers)
 	}
 }
 
@@ -113,6 +114,8 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 		return
 	}
 
+	h.db.UpdateLastLogin(c.Request.Context(), userID)
+
 	refreshToken, err := auth.GenerateRefreshToken(auth.Load(), userID, req.Email, req.Name, "email")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate refresh token"})
@@ -153,6 +156,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
 		return
 	}
+
+	h.db.UpdateLastLogin(c.Request.Context(), user.ID)
 
 	refreshToken, err := auth.GenerateRefreshToken(auth.Load(), user.ID, user.Email, user.Name, "email")
 	if err != nil {
@@ -217,6 +222,8 @@ func (h *AuthHandler) GoogleAuth(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
 		return
 	}
+
+	h.db.UpdateLastLogin(c.Request.Context(), user.ID)
 
 	refreshToken, err := auth.GenerateRefreshToken(auth.Load(), user.ID, user.Email, user.Name, "google")
 	if err != nil {
@@ -330,4 +337,13 @@ func (h *AuthHandler) ResetPassword(c *gin.Context) {
 	_ = hash // Store hash in DB for password reset implementation
 
 	c.JSON(http.StatusOK, gin.H{"message": "password reset successful"})
+}
+
+func (h *AuthHandler) GetAdminUsers(c *gin.Context) {
+	users, err := h.db.GetAllUsers(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get users"})
+		return
+	}
+	c.JSON(http.StatusOK, users)
 }

@@ -13,6 +13,7 @@ type User struct {
 	Name        string   `json:"name"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+	LastLogin  *time.Time `json:"last_login"`
 }
 
 func (db *DB) InitUsersTable(ctx context.Context) error {
@@ -30,6 +31,9 @@ func (db *DB) InitUsersTable(ctx context.Context) error {
 	CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
 	`
 	_, err := db.conn.ExecContext(ctx, schema)
+	if err == nil {
+		db.conn.ExecContext(ctx, "ALTER TABLE users ADD COLUMN last_login DATETIME")
+	}
 	return err
 }
 
@@ -43,10 +47,10 @@ func (db *DB) CreateUser(ctx context.Context, email, passwordHash, name string) 
 }
 
 func (db *DB) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	query := `SELECT id, email, password_hash, google_id, name, created_at, updated_at FROM users WHERE email = ?`
+	query := `SELECT id, email, password_hash, google_id, name, created_at, updated_at, last_login FROM users WHERE email = ?`
 	user := &User{}
 	err := db.conn.QueryRowContext(ctx, query, email).Scan(
-		&user.ID, &user.Email, &user.PasswordHash, &user.GoogleID, &user.Name, &user.CreatedAt, &user.UpdatedAt,
+		&user.ID, &user.Email, &user.PasswordHash, &user.GoogleID, &user.Name, &user.CreatedAt, &user.UpdatedAt, &user.LastLogin,
 	)
 	if err != nil {
 		return nil, err
@@ -55,10 +59,10 @@ func (db *DB) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 }
 
 func (db *DB) GetUserByID(ctx context.Context, id int64) (*User, error) {
-	query := `SELECT id, email, password_hash, google_id, name, created_at, updated_at FROM users WHERE id = ?`
+	query := `SELECT id, email, password_hash, google_id, name, created_at, updated_at, last_login FROM users WHERE id = ?`
 	user := &User{}
 	err := db.conn.QueryRowContext(ctx, query, id).Scan(
-		&user.ID, &user.Email, &user.PasswordHash, &user.GoogleID, &user.Name, &user.CreatedAt, &user.UpdatedAt,
+		&user.ID, &user.Email, &user.PasswordHash, &user.GoogleID, &user.Name, &user.CreatedAt, &user.UpdatedAt, &user.LastLogin,
 	)
 	if err != nil {
 		return nil, err
@@ -67,10 +71,10 @@ func (db *DB) GetUserByID(ctx context.Context, id int64) (*User, error) {
 }
 
 func (db *DB) GetUserByGoogleID(ctx context.Context, googleID string) (*User, error) {
-	query := `SELECT id, email, password_hash, google_id, name, created_at, updated_at FROM users WHERE google_id = ?`
+	query := `SELECT id, email, password_hash, google_id, name, created_at, updated_at, last_login FROM users WHERE google_id = ?`
 	user := &User{}
 	err := db.conn.QueryRowContext(ctx, query, googleID).Scan(
-		&user.ID, &user.Email, &user.PasswordHash, &user.GoogleID, &user.Name, &user.CreatedAt, &user.UpdatedAt,
+		&user.ID, &user.Email, &user.PasswordHash, &user.GoogleID, &user.Name, &user.CreatedAt, &user.UpdatedAt, &user.LastLogin,
 	)
 	if err != nil {
 		return nil, err
@@ -108,4 +112,29 @@ func (db *DB) GoogleIDExists(ctx context.Context, googleID string) (bool, error)
 	var exists bool
 	err := db.conn.QueryRowContext(ctx, query, googleID).Scan(&exists)
 	return exists, err
+}
+
+func (db *DB) UpdateLastLogin(ctx context.Context, userID int64) error {
+	query := `UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?`
+	_, err := db.conn.ExecContext(ctx, query, userID)
+	return err
+}
+
+func (db *DB) GetAllUsers(ctx context.Context) ([]User, error) {
+	query := `SELECT id, email, google_id, name, created_at, updated_at, last_login FROM users ORDER BY created_at DESC`
+	rows, err := db.conn.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var u User
+		if err := rows.Scan(&u.ID, &u.Email, &u.GoogleID, &u.Name, &u.CreatedAt, &u.UpdatedAt, &u.LastLogin); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, nil
 }
